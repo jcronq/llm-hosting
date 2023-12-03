@@ -5,3 +5,6 @@ models/
 profile.txt
 trace*.json
 .pytest_cache/
+test_results/
+build/
+results.json
