@@ -9,6 +9,7 @@ from local_llm.resources.lorem_ipsum import lorem_ipsum
 
 
 def timeit(func):
+    """Wraps and returns a function that will time the given function."""
     def wrapper(*args, **kwargs):
         start = time.time()
         result = func(*args, **kwargs)
@@ -17,21 +18,30 @@ def timeit(func):
     return wrapper
 
 def warm_llm(model_pipe):
+    """ 
+    The LLM tend to be really slow if this is the first request they receive.  
+    So this function just acts as an initial query so subsequent profiling runs 
+    show only inference runtimes
+    """
+
     text = lorem_ipsum[:100]
     generate(model_pipe, text, max_new_tokens=10)
 
 
 @functools.cache
 def get_lorem_ids(tokenizer):
+    """Returns the tokenized lorem ipsum text"""
     lorem_ids = tokenizer.encode(lorem_ipsum)
     return lorem_ids
 
 def get_lorem_text(tokenizer, length):
+    """Returns the text from lorem ipsum, that contains exactly length tokens"""
     lorem_ids = get_lorem_ids(tokenizer)
     input_ids = lorem_ids[:length]
     return tokenizer.decode(input_ids, skip_special_tokens=True)
 
 def profile_llm_generation(model_pipe, input_length, output_length):
+    """Runs the torch profiler on an llm generation call"""
     timed_generate =  timeit(functools.partial(generate, model_pipe))
 
     text = get_lorem_text(model_pipe.tokenizer, input_length)
@@ -42,6 +52,7 @@ def profile_llm_generation(model_pipe, input_length, output_length):
     prof.export_chrome_trace(f"trace_{input_length}_input.json")
 
 def test_throughput(model_pipe, input_lengths, output_lengths, output_file=None):
+    """Tests an model for throughput latencies.  Creates a csv report."""
     timed_generate =  timeit(functools.partial(generate, model_pipe))
 
     warm_llm(model_pipe)
