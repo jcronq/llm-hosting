@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: llm test",
+            "type": "python",
+            "request": "launch",
+            "program": "local_llm/test_llm.py",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false,
+            "stopOnEntry": false,
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "showReturnValue": false,
+        }
+    ]
+}
