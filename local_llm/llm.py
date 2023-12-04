@@ -54,8 +54,19 @@ def create_model_8bit(model_dir):
 
     return pipe
 
+common_kwarg_map = {
+    "max_tokens": "max_new_tokens",
+    "min_tokens": "min_new_tokens",
+}
+
+def normalize_kwargs(kwargs):
+    for k, v in common_kwarg_map.items():
+        if k in kwargs:
+            kwargs[common_kwarg_map[v]] = kwargs.pop(k)
+    return kwargs
 
 def generate(pipe, text, **kwargs):
+    kwargs = normalize_kwargs(kwargs)
     results = pipe(
         text,
         return_full_text=False,
