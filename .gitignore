@@ -8,3 +8,4 @@ trace*.json
 test_results/
 build/
 results.json
+*.tar.gz
