@@ -1,11 +1,14 @@
 import time
 import functools
 import csv
+import json
 
+import torch
 from torch.profiler import profile, record_function, ProfilerActivity
 
 import local_llm.llm as llm
 from local_llm.resources.lorem_ipsum import lorem_ipsum
+from local_llm.utils import human_readable_memory, normalize_device_id
 
 
 def timeit(func):
@@ -73,3 +76,21 @@ def save_test_results(results, filename):
     with open(filename, "w") as f:
         writer = csv.writer(f)
         writer.writerows(results)
+
+def print_cuda_memory():
+    device_profile = {"total": {"total": 0, "reserved": 0, "allocated": 0, "free": 0}}
+    for i in range(torch.cuda.device_count()):
+        memory_profile = {
+            "total": torch.cuda.get_device_properties(i).total_memory,
+            "reserved": torch.cuda.memory_reserved(i),
+            "allocated": torch.cuda.memory_allocated(i),
+        }
+        memory_profile["free"] = memory_profile["total"] - memory_profile["reserved"] - memory_profile["allocated"]
+        for k, v in memory_profile.items():
+            device_profile["total"][k] += v
+        device_profile[i] = memory_profile
+    str_device_profile = {
+        normalize_device_id(device_id): {k: human_readable_memory(v) for k, v in memory_profile.items()}
+        for device_id, memory_profile in device_profile.items()
+    }
+    print(json.dumps(str_device_profile, indent=2))

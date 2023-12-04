@@ -1,4 +1,4 @@
-from local_llm.utils import print_cuda_memory
+from local_llm.profiling import print_cuda_memory
 attribute_type_map = {
     "temperature": float,
     "max_tokens": int,
