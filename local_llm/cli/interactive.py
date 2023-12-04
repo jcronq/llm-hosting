@@ -1,4 +1,7 @@
-from local_llm.profiling import print_cuda_memory
+from local_llm.profiling import get_cuda_memory
+from local_llm.utils import sprint_byte_object
+
+
 attribute_type_map = {
     "temperature": float,
     "max_tokens": int,
@@ -18,7 +21,7 @@ def interactive_function(user_input, kwargs):
         case [""]:
             pass
         case ["free" | "memory" | "mem" | "cuda" | "gpu" | "print_memory" | "print_mem" | "print_cuda" | "print_gpu" | "print_memory_usage" | "print_mem_usage" | "print_cuda_usage" | "print_gpu_usage" | "print_memory_profile" | "print_mem_profile" | "print_cuda_profile" | "print_gpu_profile" | "print_memory_info" | "print_mem_info" | "print_cuda_info" | "print_gpu_info"]:
-            print_cuda_memory()
+            print(sprint_byte_object(get_cuda_memory()))
         case ["break"]:
             raise GotoBreakpoint()
         case ["print" | "p" | "args" | "kwargs" | "print_args" | "print_kwargs" | "printargs" | "printkwargs"]:

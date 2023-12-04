@@ -77,7 +77,7 @@ def save_test_results(results, filename):
         writer = csv.writer(f)
         writer.writerows(results)
 
-def print_cuda_memory():
+def get_cuda_memory():
     device_profile = {"total": {"total": 0, "reserved": 0, "allocated": 0, "free": 0}}
     for i in range(torch.cuda.device_count()):
         memory_profile = {
@@ -89,8 +89,4 @@ def print_cuda_memory():
         for k, v in memory_profile.items():
             device_profile["total"][k] += v
         device_profile[i] = memory_profile
-    str_device_profile = {
-        normalize_device_id(device_id): {k: human_readable_memory(v) for k, v in memory_profile.items()}
-        for device_id, memory_profile in device_profile.items()
-    }
-    print(json.dumps(str_device_profile, indent=2))
+    return device_profile
