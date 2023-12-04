@@ -19,7 +19,7 @@ setup(
     install_requires=requirements(),
     # Adds the CLI command 'llm' which points to the main function in llm.py
     entry_points = {
-        'console_scripts': ['llm=local_llm.main:cli'],
+        'console_scripts': ['llm=local_llm.cli.main:cli'],
     },
 
 )

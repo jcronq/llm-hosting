@@ -4,7 +4,7 @@ import csv
 
 from torch.profiler import profile, record_function, ProfilerActivity
 
-from local_llm.llm import create_model, generate
+import local_llm.llm as llm
 from local_llm.resources.lorem_ipsum import lorem_ipsum
 
 
@@ -25,7 +25,7 @@ def warm_llm(model_pipe):
     """
 
     text = lorem_ipsum[:100]
-    generate(model_pipe, text, max_new_tokens=10)
+    llm.generate(model_pipe, text, max_new_tokens=10)
 
 
 @functools.cache
@@ -42,7 +42,7 @@ def get_lorem_text(tokenizer, length):
 
 def profile_llm_generation(model_pipe, input_length, output_length):
     """Runs the torch profiler on an llm generation call"""
-    timed_generate =  timeit(functools.partial(generate, model_pipe))
+    timed_generate =  timeit(functools.partial(llm.generate, model_pipe))
 
     text = get_lorem_text(model_pipe.tokenizer, input_length)
     with profile(activities=[ProfilerActivity.CUDA, ProfilerActivity.CPU], record_shapes=True, profile_memory=True) as prof:
@@ -53,7 +53,7 @@ def profile_llm_generation(model_pipe, input_length, output_length):
 
 def test_throughput(model_pipe, input_lengths, output_lengths, output_file=None):
     """Tests an model for throughput latencies.  Creates a csv report."""
-    timed_generate =  timeit(functools.partial(generate, model_pipe))
+    timed_generate =  timeit(functools.partial(llm.generate, model_pipe))
 
     warm_llm(model_pipe)
     results = [("input_length", "output_length", "runtime")]

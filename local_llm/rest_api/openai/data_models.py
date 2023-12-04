@@ -3,15 +3,12 @@ from pydantic import BaseModel, Field
 import time
 
 from local_llm.utils import random_uuid
+from local_llm.prompting import ChatMessage
 
 class UsageInfo(BaseModel):
     prompt_tokens: int = 0
     total_tokens: int = 0
     completion_tokens: Optional[int] = 0
-
-class ChatMessage(BaseModel):
-    role: str
-    content: str
 
 class ChatCompletionResponseChoice(BaseModel):
     index: int
@@ -96,18 +93,3 @@ class ChatCompletionRequest(BaseModel):
     spaces_between_special_tokens: Optional[bool] = True
     add_generation_prompt: Optional[bool] = True
     echo: Optional[bool] = False
-
-class ChatPrompt:
-    def __init__(self, model_name):
-        self.model_name = model_name
-    
-    def __call__(self, messages: List[ChatMessage], **kwargs):
-        conversation = ""
-        for message in messages:
-            conversation += f"{message.role}: {message.content}\n"
-        conversation += "Assistant: "
-        match(self.model_name):
-            case "mistral-7b-instruct":
-                return f"<s>[INST]You are a ChatBot. You are in a Conversation with User. User messages are labeled USER:. Your responses are labeled ASSISTANT. Respond conversationally to the user's latest message.[/INST]\n{conversation}"
-            case _:
-                raise ValueError(f"Unknown model name {self.model_name}")

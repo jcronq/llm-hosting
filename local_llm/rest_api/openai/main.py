@@ -1,5 +1,4 @@
 import time
-import uuid
 import json
 
 import uvicorn
@@ -8,18 +7,21 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse, Response
 
+from local_llm.prompting import (
+    Prompt,
+    ChatPrompt,
+    ChatMessage,
+)
 
-
-from local_llm.apis.openai.data_models import (
+from local_llm.rest_api.openai.data_models import (
     ChatCompletionRequest,
     ChatCompletionResponse,
     ChatCompletionResponseChoice,
-    ChatMessage,
     CompletionRequest,
     UsageInfo,
-    ChatPrompt,
+    CompletionResponseChoice
 )
-from local_llm.llm import create_model, generate, Prompt
+from local_llm.llm import create_model_4bit, generate
 from local_llm.utils import random_uuid
 from local_llm.profiling import profile_llm_generation
 
@@ -29,11 +31,11 @@ TIMEOUT_KEEP_ALIVE = 5 # seconds
 
 model_name = "mistral-7b-instruct"
 
-model_pipe = create_model(f"models/{model_name}")
+model_pipeline = create_model_4bit(f"models/{model_name}")
 model_prompt = Prompt(model_name)
 
-chat_pipe = model_pipe
-chat_prompt = model_prompt
+chat_pipeline = model_pipeline
+chat_prompt = ChatPrompt(model_name)
 
 
 @app.get("/health")
@@ -54,12 +56,12 @@ async def create_chat_completion(request: ChatCompletionRequest, raw_request: Re
     created_time = int(time.monotonic())
 
     prompt = chat_prompt(request.messages)
-    response = generate(chat_pipe, prompt)
+    response = generate(chat_pipeline, prompt)
     result_message = ChatMessage("assistant", response)
     choices = [ChatCompletionResponseChoice(0, result_message, "stop")]#: Optional[Literal["stop", "length"]] = None
 
-    num_prompt_tokens = len(chat_model.tokenizer.encode(prompt))
-    num_generated_tokens = len(chat_model.tokenizer.encode(response)) - num_prompt_tokens
+    num_prompt_tokens = len(chat_pipeline.tokenizer.encode(prompt))
+    num_generated_tokens = len(chat_pipeline.tokenizer.encode(response)) - num_prompt_tokens
     usage = UsageInfo(
         prompt_tokens=num_prompt_tokens,
         completion_tokens=num_generated_tokens,
@@ -81,11 +83,11 @@ async def create_completion(request: CompletionRequest, raw_request: Request):
     created_time = int(time.monotonic())
 
     prompt = model_prompt(request.messages)
-    response = generate(model_pipe, prompt)
+    response = generate(model_pipeline, prompt)
     choices = [CompletionResponseChoice(0, response)]
 
-    num_prompt_tokens = len(chat_model.tokenizer.encode(prompt))
-    num_generated_tokens = len(chat_model.tokenizer.encode(response)) - num_prompt_tokens
+    num_prompt_tokens = len(chat_pipeline.tokenizer.encode(prompt))
+    num_generated_tokens = len(chat_pipeline.tokenizer.encode(response)) - num_prompt_tokens
     usage = UsageInfo(
         prompt_tokens=num_prompt_tokens,
         completion_tokens=num_generated_tokens,
@@ -105,7 +107,7 @@ def profile_resources():
     output_length = 10
     traces = []
     for input_length in input_length_tests:
-        profile_llm_generation(model_pipe, input_length, output_length)
+        profile_llm_generation(model_pipeline, input_length, output_length)
         with open(f"trace_{input_length}_input.json") as _f:
             traces.append(json.load(_f))
     return traces
