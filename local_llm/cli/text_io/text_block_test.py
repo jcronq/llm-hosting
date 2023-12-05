@@ -33,50 +33,49 @@ def test_error_richtext():
 
 def test_wrap_text():
     rt = RichText(text="Hello, world!")
-    tb = TextBlock(width=9, rich_text_list=[rt])
+    tb = TextBlock(width=9)
     expected_wrapped_text = [
         TextLine([RichText(text="Hello, ")]),
         TextLine([RichText(text="world!")])
     ]
-    result = list(tb.wrapped_text())
+    result = list(tb.wrapped_text([rt]))
     assert result == expected_wrapped_text
 
 def test_wrap_text_shortest_word_match():
     rt = RichText(text="Hello, world!")
-    tb = TextBlock(width=6, rich_text_list=[rt])
+    tb = TextBlock(width=6)
     expected_wrapped_text = [TextLine([RichText(text="Hello,")]), TextLine([RichText(text="world!")])]
-    result = list(tb.wrapped_text())
+    result = list(tb.wrapped_text([rt]))
     assert result == expected_wrapped_text
 
     rt = RichText(text="Hello  \nworld!")
-    tb = TextBlock(width=6, rich_text_list=[rt])
     expected_wrapped_text = [TextLine([RichText(text="Hello")]), TextLine([RichText(text="world!")])]
-    result = list(tb.wrapped_text())
+    result = list(tb.wrapped_text([rt]))
     assert result == expected_wrapped_text
 
 def test_wrap_text_mid_whitespace_newline():
     rt = RichText(text="Hello \n world")
-    tb = TextBlock(width=6, rich_text_list=[rt])
+    tb = TextBlock(width=6)
+
+    result = list(tb.wrapped_text([rt]))
     expected_wrapped_text = [TextLine([RichText(text="Hello")]), TextLine([RichText(text=" world")])]
-    result = list(tb.wrapped_text())
     assert result == expected_wrapped_text
 
     rt = RichText(text="Hello \n world!")
-    tb = TextBlock(width=6, rich_text_list=[rt])
+    result = list(tb.wrapped_text([rt]))
     expected_wrapped_text = [TextLine([RichText(text="Hello")]), TextLine([RichText(text=" ")]), TextLine([RichText(text="world!")])]
-    result = list(tb.wrapped_text())
     assert result == expected_wrapped_text
 
 def test_mid_word_break():
     rt = RichText(text="replicate")
-    tb = TextBlock(width=5, rich_text_list=[rt])
+    tb = TextBlock(width=5)
     expected_wrapped_text = [TextLine([RichText(text="repli")]), TextLine([RichText(text="cate")])]
-    result = list(tb.wrapped_text())
+    result = list(tb.wrapped_text([rt]))
     assert result == expected_wrapped_text
 
 def test_multi_mid_word_break():
     rt = RichText(text="replicate")
-    tb = TextBlock(width=2, rich_text_list=[rt])
+    tb = TextBlock(width=2)
     expected_wrapped_text = [
         TextLine([RichText(text="re")]),
         TextLine([RichText(text="pl")]),
@@ -84,12 +83,12 @@ def test_multi_mid_word_break():
         TextLine([RichText(text="at")]),
         TextLine([RichText(text="e")]),
     ]
-    result = list(tb.wrapped_text())
+    result = list(tb.wrapped_text([rt]))
     assert result == expected_wrapped_text
 
 def test_multi_mid_word_break_with_space():
     rt = RichText(text="repl icate")
-    tb = TextBlock(width=2, rich_text_list=[rt])
+    tb = TextBlock(width=2)
     expected_wrapped_text = [
         TextLine([RichText(text="re")]),
         TextLine([RichText(text="pl")]),
@@ -98,12 +97,12 @@ def test_multi_mid_word_break_with_space():
         TextLine([RichText(text="at")]),
         TextLine([RichText(text="e")]),
     ]
-    result = list(tb.wrapped_text())
+    result = list(tb.wrapped_text([rt]))
     assert result == expected_wrapped_text
 
 def test_multi_mid_word_start_with_space():
     rt = RichText(text=" repl icate")
-    tb = TextBlock(width=2, rich_text_list=[rt])
+    tb = TextBlock(width=2)
     expected_wrapped_text = [
         TextLine([RichText(text=" ")]),
         TextLine([RichText(text="re")]),
@@ -113,12 +112,12 @@ def test_multi_mid_word_start_with_space():
         TextLine([RichText(text="at")]),
         TextLine([RichText(text="e")]),
     ]
-    result = list(tb.wrapped_text())
+    result = list(tb.wrapped_text([rt]))
     assert result == expected_wrapped_text
 
 def test_multi_mid_word_start_with_space_edge_case_0():
     rt = RichText(text=" rep licate")
-    tb = TextBlock(width=3, rich_text_list=[rt])
+    tb = TextBlock(width=3)
     expected_wrapped_text = [
         TextLine([RichText(text=" ")]),
         TextLine([RichText(text="rep")]),
@@ -126,7 +125,7 @@ def test_multi_mid_word_start_with_space_edge_case_0():
         TextLine([RichText(text="lic")]),
         TextLine([RichText(text="ate")]),
     ]
-    result = list(tb.wrapped_text())
+    result = list(tb.wrapped_text([rt]))
     assert result == expected_wrapped_text
 
 def test_border():
@@ -137,7 +136,6 @@ def test_border():
     rt = RichText(text="Hello")
     tb = TextBlock(
         width=text_width,
-        rich_text_list=[rt],
         border_thickness=border_width,
         padding_thickness=padding_width,
         border_color="red",
@@ -155,7 +153,7 @@ def test_border():
         TextLine([*open_padding, RichText(text="     ", color="white"), *close_padding]),
         TextLine([*border, RichText(text="*****", color="red"), *border]),
     ]
-    result = list(tb.wrapped_text())
+    result = list(tb.wrapped_text([rt]))
     assert result == expected
     for line in result:
         assert len(line) == text_width + border_width * 2 + padding_width * 2
@@ -165,10 +163,9 @@ def test_even_line_width_case():
     border_width = 1
     padding_width = 1
     text_str = "I cannot provide a specific time without additional context. Time varies depending on the location and the context, such as whether it is daytime or nighttime, whether it is standard time or daylight saving time, etc. Could you please provide more information so I can provide an accurate answer?"
-    text = RichText(text=text_str)
+    rt = RichText(text=text_str)
     tb = TextBlock(
         width=text_width,
-        rich_text_list=[text],
         border_thickness=border_width,
         padding_thickness=padding_width,
         border_color="red",
@@ -186,7 +183,7 @@ def test_even_line_width_case():
         TextLine([RichText(text="you please provide more information so I")]),
         TextLine([RichText(text="can provide an accurate answer?")])
     ]
-    result = list(tb.wrapped_text())
+    result = list(tb.wrapped_text([rt]))
 
     for line in result:
         assert len(line) == text_width + border_width * 2 + padding_width * 2

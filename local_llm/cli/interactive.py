@@ -83,6 +83,7 @@ def interact(generate, prompt_builder):
         "num_return_sequences": 1,
         "do_sample": True,
     }
+    assistant_block = TextBlock(width=40, border_thickness=1, padding_thickness=1, border_color="red")
     while True:
         text = input("Enter text: ")
         if text.startswith("/"):
@@ -94,6 +95,5 @@ def interact(generate, prompt_builder):
             except QuitException:
                 break
         result = generate(prompt_builder(text), **kwargs).replace("\\n", "\n").strip()
-        assistant_text = RichText(text=result, color="green")
-        assistant_block = TextBlock(rich_text_list=[assistant_text], width=40, border_thickness=1, padding_thickness=1, border_color="red")
-        ConsolePrinter.print(assistant_block)
+        assistant_text = [RichText(text=result, color="green")]
+        ConsolePrinter.print(assistant_text, assistant_block)

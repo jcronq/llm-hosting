@@ -48,7 +48,6 @@ class TextBlock:
     def __init__(
         self,
         width: int,
-        rich_text_list: List[RichText],
         padding_char: str = " ",
         border_char: str = "*",
         padding_thickness: int = 0,
@@ -58,7 +57,6 @@ class TextBlock:
     ):
         # Text blocks have a max width, the height however is variable. Height will expand to fit the text.
         self.width = width
-        self.rich_text_list = rich_text_list
         self.padding_char = padding_char
         self.border_char = border_char
         self.padding_thickness = padding_thickness
@@ -103,13 +101,13 @@ class TextBlock:
         return padding
 
     
-    def wrapped_text(self):
+    def wrapped_text(self, rich_text_list: List[RichText]):
         if self.border_thickness > 0:
             yield self.horizontal_border
         if self.padding_thickness > 0:
             yield self.horizontal_padding
         cur_line = TextLine([])
-        for rich_text in self.rich_text_list:
+        for rich_text in rich_text_list:
 
             new_rich_text = rich_text.clone_settings()
             for word in rich_text.words():
@@ -160,92 +158,11 @@ class TextBlock:
             yield self.horizontal_border
 
 
-    # def wrapped_text(self) -> list[RichText]:
-    #     for rich_text in self.rich_text_list:
-    #         lines = []
-    #         line = " "*offset
-
-    #         for word in rich_text.words:
-    #             if(len(line) + 1 + len(word) > blockSize+offset):
-    #                 spacer = " " * ((blockSize+offset)-len(line))
-    #                 line = line + spacer
-    #                 lines.append(line)
-    #                 line = (" " * offset) + word
-    #             else:
-    #                 if(len(line) != offset):
-    #                     line = line + " "
-    #                 line = line + word
-
-    #         spacer = " " * ((blockSize+offset)-len(line))
-    #         line = line + spacer
-    #         lines.append(line)
-    #         return "\n".join(lines)
-
-# def add_colors_from_blocks(txt, searchChar, noMatchColor, matchColor):
-#     charIndex = txt.find(searchChar)
-#     eolIndex = txt.find("\n")
-#     if(eolIndex < 0):
-#         eolIndex = len(txt)
-#     lines = []
-#     inBlock = False
-#     while charIndex >= 0 or eolIndex != len(txt):
-#         index = min(charIndex, eolIndex)
-#         if(index < 0):
-#             index = eolIndex
-#         line = txt[0:index]
-#         if inBlock:
-#             line = colored(line, matchColor)
-#         else:
-#             line = colored(line, noMatchColor)
-
-#         if(txt[index] == '\n'):
-#             addtext="\n"
-#         else:
-#             addtext=" "
-#             inBlock = not inBlock
-#         lines.append(line+addtext)
-#         txt = txt[index+1:len(txt)]
-#         charIndex = txt.find(searchChar)
-#         eolIndex = txt.find("\n")
-#         if(eolIndex < 0):
-#             eolIndex = len(txt)
-#     if(len(txt) > 0):
-#         lines.append(colored(txt, noMatchColor))
-#     return "".join(lines)
-
-# def wrap_in_block(txt, blockSize):
-#     blockLine = "_" * blockSize
-#     tailBlockLine = "=" * blockSize
-#     blockPrefix = "| "
-#     blockPostfix = " |"
-#     blockFixSize = len(blockPostfix) + len(blockPrefix)
-
-#     colorBlock = add_colors_from_blocks(txt, "*", color_map['color_nar'], color_map['color_env'])
-#     blockedColorBlock = colored(blockLine + "\n| ", 'white') + colorBlock.replace("\n", colored(" |\n| ", 'white')) + colored(" |\n", 'white') + tailBlockLine
-#     return blockedColorBlock
-
 # def faux_type_print(txt, wordsPerMinute):
 #     for ch in txt:
 #         print(ch, end = "")
 #         time.sleep((1/wordsPerMinute)/60)
 #     print("")
-
-# def wrap_text_block(txt, blockSize = 40, offset = 0):
-#     if isinstance(txt, str):
-#         linesRaw = txt.splitlines()
-#     elif isinstance(txt, list):
-#         linesRaw = txt
-#     else:
-#         return "ERROR!!! input is neither a string or array"
-
-#     wrappedLines = []
-#     for rawLine in linesRaw:
-#         split_lines = rawLine.splitlines()
-#         for split_line in split_lines:
-#             wrappedLines.append(wrap_text(split_line, blockSize - 4, offset))
-#     wrappedText = "\n".join(wrappedLines)
-
-#     return wrappedText
 
 # def print_game_block(txt, blockSize=60, offset=0):
 #     new_txt = []

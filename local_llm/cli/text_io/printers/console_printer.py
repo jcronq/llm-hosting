@@ -1,28 +1,23 @@
-from typing import Callable, Any
-from termcolor import colored, cprint
-import time
-import re
-from local_llm.cli.text_io.config import TextIOConfig
-from local_llm.cli.text_io.utils import remove_newline
-from local_llm.cli.text_io.parsers import nop_function_parser
+from typing import List
+from termcolor import cprint
 from local_llm.cli.text_io.colorizer import Colorizer
 from local_llm.cli.text_io.text_block import TextBlock
+from local_llm.cli.text_io.rich_text import RichText
 from . import PrinterBase
 
 
 class ConsolePrinter(PrinterBase):
     @staticmethod
-    def c_print(color_name, txt):
-        cprint(txt, color_name, end="")
+    def c_print(color_name, txt, end=""):
+        cprint(txt, color_name, end=end)
 
     @staticmethod
-    def util_print(colorizer: Colorizer, msg):
-        cprint(msg, colorizer.color_from_text_type('color_util'))
+    def util_print(colorizer: Colorizer, msg, end="\n"):
+        cprint(msg, colorizer.color_from_text_type('color_util'), end=end)
     
     @staticmethod
-    def print(text_block: TextBlock):
-        text_lines = text_block.wrapped_text()
-        for text_line in text_lines:
+    def print(text_list: List[RichText], text_block: TextBlock):
+        for text_line in text_block.wrapped_text(text_list):
             for rich_text in text_line.rich_text_list:
                 ConsolePrinter.c_print(rich_text.color, rich_text.text)
             print()
