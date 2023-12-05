@@ -2,6 +2,8 @@ import fire
 from pathlib import Path
 import functools
 
+import torch
+
 import local_llm.llm as llm
 from local_llm.profiling import test_throughput, profile_llm_generation
 from local_llm.cli.interactive import interact
@@ -18,12 +20,12 @@ def run_interact(model_dir="models/mistral-7b-instruct", model_loader=llm.create
 def run_throughput_test(which_test="input", model_dir="models/mistral-7b-instruct", model_loader=llm.create_model_4bit):
     model_pipeline = model_loader(model_dir)
     if which_test == "input":
-        input_lengths = range(100, 3000, 300)
+        input_lengths = range(100, 4000, 300)
         output_lengths = [1]
         results_file = "input_throughput.csv"
     elif which_test == "output":
         input_lengths = [100]
-        output_lengths = range(100, 3000, 300)
+        output_lengths = range(100, 4000, 300)
         results_file = "output_throughput.csv"
     test_throughput(model_pipeline, input_lengths, output_lengths, results_file)
 

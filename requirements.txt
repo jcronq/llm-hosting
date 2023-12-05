@@ -6,3 +6,4 @@ transformers
 scipy
 fastapi
 uvicorn
+pyyaml

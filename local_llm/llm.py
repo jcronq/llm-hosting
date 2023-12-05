@@ -41,7 +41,7 @@ def create_model_8bit(model_dir):
         load_in_8bit=True,
         quantization_config=bnb,
         torch_dtype=torch.bfloat16,
-        device_map="auto",
+        device_map="cuda",
     )
 
     pipe = pipeline(
@@ -49,7 +49,7 @@ def create_model_8bit(model_dir):
         model=model,
         tokenizer=tokenizer,
         torch_dtype=torch.bfloat16,
-        device_map="auto",
+        device_map="cuda",
     )
 
     return pipe

@@ -3,6 +3,10 @@ import json
 from local_llm.profiling import get_cuda_memory
 from local_llm.utils import sprint_byte_object
 
+from local_llm.cli.text_io.rich_text import RichText
+from local_llm.cli.text_io.text_block import TextBlock
+from local_llm.cli.text_io.printers.console_printer import ConsolePrinter
+
 
 attribute_type_map = {
     "temperature": float,
@@ -44,7 +48,7 @@ def interactive_function(user_input, kwargs):
         case ["help"]:
             print("Available commands:")
             print("  /help  (prints help)")
-            print("  /set <attribute> <value>\n      (Sets the kwarg <attribute> to <value>))")
+            print("  /set <attribute> <value>\n         (Sets the kwarg <attribute> to <value>))")
             print("  /break (enters a python breakpoint)")
             print("  /q     (quits)")
             print("  /free  (prints memory stats of the gpu)")
@@ -89,5 +93,7 @@ def interact(generate, prompt_builder):
                 breakpoint()
             except QuitException:
                 break
-        result = generate(prompt_builder(text), **kwargs).replace("\\n", "\n")
-        print(result)
+        result = generate(prompt_builder(text), **kwargs).replace("\\n", "\n").strip()
+        assistant_text = RichText(text=result, color="green")
+        assistant_block = TextBlock(rich_text_list=[assistant_text], width=40, border_thickness=1, padding_thickness=1, border_color="red")
+        ConsolePrinter.print(assistant_block)
