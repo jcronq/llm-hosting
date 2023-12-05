@@ -5,6 +5,13 @@ import time
 from local_llm.utils import random_uuid
 from local_llm.prompting import ChatMessage
 
+class ErrorResponse(BaseModel):
+    object: str = "error"
+    message: str
+    type: str
+    param: Optional[str] = None
+    code: Optional[str] = None
+
 class UsageInfo(BaseModel):
     prompt_tokens: int = 0
     total_tokens: int = 0

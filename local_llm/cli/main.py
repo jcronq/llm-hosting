@@ -17,6 +17,17 @@ def run_interact(model_dir="models/mistral-7b-instruct", model_loader=llm.create
     prompt_builder = Prompt(Path(model_dir).stem)
     interact(generate, prompt_builder)
 
+def serve_api(model_dir="models/mistral-7b-instruct", model_loader=llm.create_model_4bit):
+    import uvicorn
+    from local_llm.rest_api.openai.main import app, init_model, TIMEOUT_KEEP_ALIVE
+    init_model(model_dir)
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=8000,
+        timeout_keep_alive=TIMEOUT_KEEP_ALIVE,
+    )
+
 def run_throughput_test(which_test="input", model_dir="models/mistral-7b-instruct", model_loader=llm.create_model_4bit):
     model_pipeline = model_loader(model_dir)
     if which_test == "input":
@@ -41,6 +52,7 @@ def cli():
         "profile-resources": run_profile_test,
         "profile-throughput": run_throughput_test, 
         "interact": run_interact,
+        "serve": serve_api,
     })
 
 if __name__ == "__main__":
