@@ -38,14 +38,16 @@ def run_throughput_test(which_test="input", model_dir="models/mistral-7b-instruc
         input_lengths = [100]
         output_lengths = range(100, 4000, 300)
         results_file = "output_throughput.csv"
-    test_throughput(model_pipeline, input_lengths, output_lengths, results_file)
+    generate = functools.partial(llm.generate, model_pipeline)
+    test_throughput(generate, model_pipeline.tokenizer, input_lengths, output_lengths, results_file)
 
 def run_profile_test(model_dir="models/mistral-7b-instruct", input_length_tests=None, output_length=10, model_loader=llm.create_model_4bit):
     model_pipeline = model_loader(model_dir)
     if input_length_tests is None:
         input_length_tests = [100, 3000]
     for input_length in input_length_tests:
-        profile_llm_generation(model_pipeline, input_length, output_length)
+        generate = functools.partial(llm.generate, model_pipeline)
+        profile_llm_generation(generate, model_pipeline.tokenizer, input_length, output_length)
 
 def cli():
     fire.Fire({
