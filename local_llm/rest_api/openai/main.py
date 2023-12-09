@@ -127,17 +127,23 @@ async def create_completion(request: CompletionRequest, raw_request: Request):
     request_id = f"cmpl-{random_uuid()}"
     created_time = int(time.monotonic())
     prompt = MODEL_PROMPT(prompt)
-    response = generate(MODEL_PIPELINE, prompt)
+    start_time = time.time()
+    response = generate(MODEL_PIPELINE, prompt, max_new_tokens=request.max_tokens)
+    end_time = time.time()
     #TODO: put in real finish_reason
     choices = [CompletionResponseChoice(index=0, text=response, finish_reason="stop")]
 
     num_prompt_tokens = len(CHAT_PIPELINE.tokenizer.encode(prompt))
-    num_generated_tokens = len(CHAT_PIPELINE.tokenizer.encode(response)) - num_prompt_tokens
+    num_generated_tokens = len(CHAT_PIPELINE.tokenizer.encode(response))
     usage = UsageInfo(
         prompt_tokens=num_prompt_tokens,
         completion_tokens=num_generated_tokens,
         total_tokens=num_prompt_tokens + num_generated_tokens,
     )
+    print(f"input: {prompt}\noutput: {response}")
+    input_token_count=len(MODEL_PIPELINE.tokenizer.encode(prompt)) - 1
+    output_token_count=len(MODEL_PIPELINE.tokenizer.encode(response)) - 1
+    print(f"input token count: {input_token_count}\noutput token count: {output_token_count}\nlatency: {end_time - start_time}")
     response = CompletionResponse(
         id=request_id,
         created=created_time,

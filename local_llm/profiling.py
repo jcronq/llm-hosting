@@ -71,6 +71,17 @@ def test_throughput(generate, tokenizer, input_lengths, output_lengths, output_f
         if output_file is not None:
             save_test_results(results, output_file)
 
+def test_batching(generate, tokenizer, input_length, output_length, batch_size):
+    """Tests an model for throughput latencies.  Creates a csv report."""
+    timed_generate =  timeit(generate)
+    warm_llm(generate)
+    text = get_lorem_text(tokenizer, input_length)
+    batch = [text] * batch_size
+    value, runtime = timed_generate(batch, max_new_tokens=output_length, min_new_tokens=output_length)
+    result = (batch_size, input_length, output_length, runtime)
+    print(result)
+    return result
+
 def save_test_results(results, filename):
     with open(filename, "w") as f:
         writer = csv.writer(f)
