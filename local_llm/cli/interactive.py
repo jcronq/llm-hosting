@@ -76,14 +76,14 @@ def interactive_function(user_input, kwargs):
 
 def interact(generate, prompt_builder):
     kwargs = {
-        "max_new_tokens": 100,
+        "max_new_tokens": 500,
         "temperature": 0.7,
-        "top_k": 50,
-        "top_p": 0.95,
-        "num_return_sequences": 1,
-        "do_sample": True,
+        # "top_k": 50,
+        # "top_p": 0.95,
+        # "num_return_sequences": 1,
+        # "do_sample": True,
     }
-    assistant_block = TextBlock(width=40, border_thickness=1, padding_thickness=1, border_color="red")
+    assistant_block = TextBlock(width=120, border_thickness=1, padding_thickness=1, border_color="red")
     while True:
         text = input("Enter text: ")
         if text.startswith("/"):

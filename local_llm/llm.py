@@ -34,6 +34,8 @@ def create_pipeline(model, tokenizer, batch_size: int=1):
 
     return pipe
 
+def load_tokenizer(model_dir):
+    return AutoTokenizer.from_pretrained(model_dir)
 
 def create_model_4bit(model_dir, batch_size: int=1):
     bnb = BitsAndBytesConfig(
